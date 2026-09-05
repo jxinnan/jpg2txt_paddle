@@ -1,0 +1,28 @@
+[project]
+name = "jpg2txt"
+version = "0.1.0"
+description = "OCR pipeline for theatrical play script scans using PaddleOCR-VL-1.6, producing structured Markdown"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pillow>=10.0.0",
+    "tqdm>=4.66.0",
+    "opencv-python-headless>=4.8.0",
+    "page-dewarp>=0.3.4",
+    "transformers>=4.48.0",
+    "accelerate>=0.26.0",
+    "sentencepiece>=0.1.99",
+    "torch",
+    "torchvision",
+]
+
+[project.scripts]
+jpg2txt = "jpg2txt.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jpg2txt"]
+

@@ -1,4 +1,6 @@
-.jpg
-.jpeg
-.png
-page*.md
+*.jpg
+*.jpeg
+*.png
+page_*.md
+undercover*.md
+*.pyc
