@@ -13,8 +13,9 @@
       padding: 2.5rem 1rem;
     }
     .container {
-      max-width: 900px;
+      max-width: 700px;
       background: #ffffff;
+      margin: auto;
     }
     h1.title {
       text-align: center;
@@ -62,14 +63,17 @@
       box-sizing: border-box;
     }
     /* Production notes and characters table with wider character column */
+    table.intro-table {
+      margin: auto;
+    }
     table.intro-table col.col-char {
-      width: 220px;
+      width: 175px;
     }
     table.intro-table col.col-body {
-      width: calc(100% - 270px);
+      width: 220px;
     }
     table.intro-table td.char-name {
-      width: 270px;
+      /* width: 270px; */
       white-space: nowrap;
     }
     td.dialogue-text {
