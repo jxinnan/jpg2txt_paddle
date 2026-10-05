@@ -53,10 +53,12 @@ class PageDewarper:
                 if warped.written and generated_files:
                     dewarped_file = generated_files[0]
                     dewarped_img = Image.open(dewarped_file).convert("L")
+                    dw, dh = dewarped_img.size
 
                     # Center and scale onto 300 DPI A5 canvas
-                    a5_canvas = Image.new("L", (self.A5_WIDTH_300DPI, self.A5_HEIGHT_300DPI), color=255)
-                    dw, dh = dewarped_img.size
+                    corner = dewarped_img.getpixel((5, 5)) if dw > 10 and dh > 10 else 255
+                    canvas_color = 0 if (isinstance(corner, int) and corner < 100) else 255
+                    a5_canvas = Image.new("L", (self.A5_WIDTH_300DPI, self.A5_HEIGHT_300DPI), color=canvas_color)
 
                     # Allow maximum fit up to 94% of canvas dimension to maintain comfortable margins
                     scale = min(
@@ -117,3 +119,25 @@ class PageDewarper:
                 progress_callback(idx + 1, total)
 
         return dewarped_pages
+
+    def dewarp_folder(
+        self,
+        input_dir: Union[str, Path],
+        progress_callback=None,
+        force: bool = False,
+    ) -> List[Path]:
+        """Dewarp all page images in an input directory."""
+        inp = Path(input_dir)
+        files = sorted(
+            [f for f in inp.iterdir() if f.suffix.lower() in (".png", ".jpg", ".jpeg")]
+        )
+        total = len(files)
+        results: List[Path] = []
+        for idx, f in enumerate(files):
+            target_file = self.output_dir / f.name
+            if not target_file.exists() or force:
+                self.dewarp_page(f, target_file)
+            results.append(target_file)
+            if progress_callback:
+                progress_callback(idx + 1, total, f.stem)
+        return results

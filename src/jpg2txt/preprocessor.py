@@ -48,6 +48,9 @@ class ImagePreprocessor:
         # Gaussian blur for high-frequency noise suppression
         blur = cv2.GaussianBlur(gray, (gaussian_ksize, gaussian_ksize), 0)
 
+        # Check if page is predominantly dark
+        is_dark = np.mean(gray) < 100
+
         # Otsu's binarization
         _, binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
@@ -58,12 +61,13 @@ class ImagePreprocessor:
 
         # Blank extreme outer scanner margins to avoid edge frame artifacts
         if border_cleanup_px > 0:
+            border_val = 0 if is_dark else 255
             h, w = binary.shape
             b = min(border_cleanup_px, h // 20, w // 20)
-            binary[:b, :] = 255
-            binary[-b:, :] = 255
-            binary[:, :b] = 255
-            binary[:, -b:] = 255
+            binary[:b, :] = border_val
+            binary[-b:, :] = border_val
+            binary[:, :b] = border_val
+            binary[:, -b:] = border_val
 
         return binary
 
@@ -125,4 +129,26 @@ class ImagePreprocessor:
                 progress_callback(idx + 1, total)
 
         return preprocessed_pages
+
+    def process_folder(
+        self,
+        input_dir: Union[str, Path],
+        progress_callback=None,
+        force: bool = False,
+    ) -> List[Path]:
+        """Preprocess all page images in an input directory."""
+        inp = Path(input_dir)
+        files = sorted(
+            [f for f in inp.iterdir() if f.suffix.lower() in (".png", ".jpg", ".jpeg")]
+        )
+        total = len(files)
+        results: List[Path] = []
+        for idx, f in enumerate(files):
+            target_file = self.output_dir / f.name
+            if not target_file.exists() or force:
+                self.process_file(f, target_file)
+            results.append(target_file)
+            if progress_callback:
+                progress_callback(idx + 1, total, f.stem)
+        return results
 

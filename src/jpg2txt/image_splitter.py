@@ -35,15 +35,19 @@ class ImageSplitter:
         self.output_pages_dir.mkdir(parents=True, exist_ok=True)
 
     def get_sorted_images(self) -> List[Tuple[int, Path]]:
-        """Find and return all input image files sorted by numeric prefix."""
-        files = list(self.input_dir.glob("*.jpg")) + list(self.input_dir.glob("*.jpeg"))
+        """Find and return all input image files sorted by numeric prefix or suffix."""
+        files = (
+            list(self.input_dir.glob("*.jpg"))
+            + list(self.input_dir.glob("*.jpeg"))
+            + list(self.input_dir.glob("*.png"))
+        )
         parsed: List[Tuple[int, Path]] = []
         for f in files:
-            m = re.search(r"(\d+)-", f.name)
-            if m:
-                parsed.append((int(m.group(1)), f))
+            # Match number sequences in filename; take the last one (e.g. 01 in Scanned_...-01.jpg)
+            matches = re.findall(r"\d+", f.name)
+            if matches:
+                parsed.append((int(matches[-1]), f))
             else:
-                # Fallback to sorting by name if pattern doesn't match
                 parsed.append((9999, f))
         parsed.sort(key=lambda x: (x[0], x[1].name))
         return parsed
@@ -56,15 +60,19 @@ class ImageSplitter:
         # Resample image vertically down to 1 pixel height to get column averages
         col_averages_img = gray.resize((w, 1), Image.Resampling.BOX)
         pixels = col_averages_img.tobytes()
-        
+
         # Center spine search window: between x=420 and x=495 for 904-width images
         search_start = max(0, int(w * 0.46))
         search_end = min(w, int(w * 0.55))
-        
+
         darkest_x = min(range(search_start, search_end), key=lambda x: pixels[x])
         return darkest_x
 
-    def create_a5_page_image(self, cropped: Image.Image) -> Image.Image:
+    def create_a5_page_image(
+        self,
+        cropped: Image.Image,
+        bg_color: Tuple[int, int, int] | None = None,
+    ) -> Image.Image:
         """Place cropped page content centered on an A5 canvas at 300 DPI."""
         cw, ch = cropped.size
         target_w, target_h = self.A5_WIDTH, self.A5_HEIGHT
@@ -76,70 +84,112 @@ class ImageSplitter:
         avail_h = target_h - 2 * margin_h
 
         scale = min(avail_w / cw, avail_h / ch)
-        new_w = int(cw * scale)
-        new_h = int(ch * scale)
+        new_w = max(1, int(cw * scale))
+        new_h = max(1, int(ch * scale))
 
         resized = cropped.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-        # Create clean white A5 background
-        canvas = Image.new("RGB", (target_w, target_h), (255, 255, 255))
+        # Detect dark pages (e.g. production history with black background)
+        if bg_color is None:
+            corner = cropped.getpixel((5, 5)) if cw > 10 and ch > 10 else (255, 255, 255)
+            if isinstance(corner, (tuple, list)) and sum(corner[:3]) / 3 < 100:
+                bg_color = (0, 0, 0)
+            elif isinstance(corner, int) and corner < 100:
+                bg_color = (0, 0, 0)
+            else:
+                bg_color = (255, 255, 255)
+
+        # Create clean A5 background
+        canvas = Image.new("RGB", (target_w, target_h), bg_color)
         paste_x = (target_w - new_w) // 2
         paste_y = (target_h - new_h) // 2
         canvas.paste(resized, (paste_x, paste_y))
 
         return canvas
 
-    def process_all_images(self, save_pages: bool = True) -> List[PageInfo]:
-        """Split all scanned spread images into 64 individual A5 pages."""
+    def process_all_images(
+        self,
+        save_pages: bool = True,
+        start_page: int | None = None,
+    ) -> List[PageInfo]:
+        """Split or normalize all scanned images into individual A5 pages."""
         sorted_images = self.get_sorted_images()
+        if not sorted_images:
+            return []
+
+        # Detect spread vs single page from aspect ratio
+        with Image.open(sorted_images[0][1]) as sample_img:
+            is_spread = sample_img.width > sample_img.height
+
+        if start_page is None:
+            start_page = 108 if is_spread else 179
+
         pages: List[PageInfo] = []
 
         for idx, (img_num, img_path) in enumerate(sorted_images):
-            # Calculate page numbers: image 1 has pages 108 and 109
-            page_left_num = 108 + (img_num - 1) * 2
-            page_right_num = page_left_num + 1
-
             with Image.open(img_path) as raw_img:
                 w, h = raw_img.size
-                gutter_x = self.detect_gutter_x(raw_img)
 
-                # Crop left page: from x=0 to gutter, avoiding gutter shadow
-                left_crop_box = (0, 0, max(gutter_x - 10, 435), h)
-                left_cropped = raw_img.crop(left_crop_box)
-                left_a5 = self.create_a5_page_image(left_cropped)
+                if w > h:
+                    # 2-up landscape spread
+                    page_left_num = start_page + idx * 2
+                    page_right_num = page_left_num + 1
+                    gutter_x = self.detect_gutter_x(raw_img)
 
-                # Crop right page: from gutter shadow edge to right border
-                right_crop_box = (min(gutter_x + 15, 510), 0, w, h)
-                right_cropped = raw_img.crop(right_crop_box)
-                right_a5 = self.create_a5_page_image(right_cropped)
+                    left_crop_box = (0, 0, max(gutter_x - 10, int(w * 0.45)), h)
+                    left_cropped = raw_img.crop(left_crop_box)
+                    left_a5 = self.create_a5_page_image(left_cropped)
 
-            left_page_path = self.output_pages_dir / f"page_{page_left_num:03d}.png"
-            right_page_path = self.output_pages_dir / f"page_{page_right_num:03d}.png"
+                    right_crop_box = (min(gutter_x + 15, int(w * 0.55)), 0, w, h)
+                    right_cropped = raw_img.crop(right_crop_box)
+                    right_a5 = self.create_a5_page_image(right_cropped)
 
-            if save_pages:
-                left_a5.save(left_page_path, dpi=(300, 300))
-                right_a5.save(right_page_path, dpi=(300, 300))
+                    left_page_path = self.output_pages_dir / f"page_{page_left_num:03d}.png"
+                    right_page_path = self.output_pages_dir / f"page_{page_right_num:03d}.png"
 
-            pages.append(
-                PageInfo(
-                    page_number=page_left_num,
-                    image_index=img_num,
-                    is_left=True,
-                    source_path=img_path,
-                    image_path=left_page_path,
-                    image=left_a5,
-                )
-            )
-            pages.append(
-                PageInfo(
-                    page_number=page_right_num,
-                    image_index=img_num,
-                    is_left=False,
-                    source_path=img_path,
-                    image_path=right_page_path,
-                    image=right_a5,
-                )
-            )
+                    if save_pages:
+                        left_a5.save(left_page_path, dpi=(300, 300))
+                        right_a5.save(right_page_path, dpi=(300, 300))
+
+                    pages.append(
+                        PageInfo(
+                            page_number=page_left_num,
+                            image_index=img_num,
+                            is_left=True,
+                            source_path=img_path,
+                            image_path=left_page_path,
+                            image=left_a5,
+                        )
+                    )
+                    pages.append(
+                        PageInfo(
+                            page_number=page_right_num,
+                            image_index=img_num,
+                            is_left=False,
+                            source_path=img_path,
+                            image_path=right_page_path,
+                            image=right_a5,
+                        )
+                    )
+                else:
+                    # Single portrait page
+                    page_num = start_page + idx
+                    a5_img = self.create_a5_page_image(raw_img)
+                    page_path = self.output_pages_dir / f"page_{page_num:03d}.png"
+
+                    if save_pages:
+                        a5_img.save(page_path, dpi=(300, 300))
+
+                    pages.append(
+                        PageInfo(
+                            page_number=page_num,
+                            image_index=img_num,
+                            is_left=(page_num % 2 == 0),
+                            source_path=img_path,
+                            image_path=page_path,
+                            image=a5_img,
+                        )
+                    )
 
         return pages
 
