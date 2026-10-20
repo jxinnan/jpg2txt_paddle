@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>godeatgod — Haresh Sharma (Print Edition - A5)</title>
+  <style>
+    :root {
+      --bg-color: #e5e5e0;
+      --paper-color: #ffffff;
+      --text-color: #111111;
+      --text-muted: #555555;
+      --heading-color: #000000;
+      --border-color: #d1d5db;
+      --serif-font: 'Times New Roman', Times, 'Nimbus Roman No9 L', Georgia, serif;
+      --sans-font: Calibri, 'Segoe UI', Candara, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    @page {
+      size: A5 portrait;
+      margin: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--serif-font);
+      font-size: 9.8pt;
+      line-height: 1.48;
+      letter-spacing: 0.005em;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      padding: 2rem 1rem;
+    }
+
+    /* Screen-only toolbar for convenient printing */
+    .print-toolbar {
+      max-width: 148mm;
+      margin: 0 auto 1.5rem auto;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--sans-font);
+      font-size: 0.9rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+    }
+
+    .print-toolbar-info {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .print-toolbar-info span {
+      color: var(--text-muted);
+      font-weight: normal;
+      font-size: 0.82rem;
+      margin-left: 0.4rem;
+    }
+
+    .print-btn {
+      background: #852211;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.38rem 0.85rem;
+      font-family: var(--sans-font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .print-btn:hover {
+      background: #a12814;
+    }
+
+    /* Discrete A5 Page Container (148mm x 210mm) */
+    .a5-page {
+      width: 148mm;
+      min-height: 210mm;
+      height: 210mm;
+      margin: 0 auto 1.5rem auto;
+      background: var(--paper-color);
+      padding-top: 15mm;
+      padding-bottom: 14mm;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+    }
+
+    /* Odd pages (179, 181, ..., 205): Larger left (gutter) margin, smaller right (outer) margin */
+    .a5-page:nth-of-type(odd) {
+      padding-left: 22mm;
+      padding-right: 12mm;
+    }
+
+    /* Even pages (180, 182, ..., 204): Smaller left (outer) margin, larger right (gutter) margin */
+    .a5-page:nth-of-type(even) {
+      padding-left: 12mm;
+      padding-right: 22mm;
+    }
+
+    .a5-page:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .page-content {
+      flex: 1;
+    }
+
+    /* Subtle Book-Style Page Footer */
+    .page-footer {
+      font-family: var(--sans-font);
+      font-size: 8.5pt;
+      color: var(--text-muted);
+      text-align: center;
+      padding-top: 3mm;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    /* Typography Classes */
+    .calibri {
+      font-family: var(--sans-font);
+    }
+    .times {
+      font-family: var(--serif-font);
+    }
+
+    /* Headings */
+    h1.script-title {
+      font-family: var(--sans-font);
+      font-size: 22pt;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--heading-color);
+      margin-bottom: 0.1rem;
+      line-height: 1.1;
+    }
+
+    h2.script-author {
+      font-family: var(--serif-font);
+      font-style: italic;
+      font-weight: normal;
+      font-size: 11.5pt;
+      color: var(--text-muted);
+      margin-bottom: 1.6rem;
+    }
+
+    h3.section-header {
+      font-family: var(--sans-font);
+      font-size: 10.2pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-color);
+      margin-top: 1.15rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .page-content > h3.section-header:first-child {
+      margin-top: 0;
+    }
+
+    h4.sub-header {
+      font-family: var(--sans-font);
+      font-size: 9.8pt;
+      font-weight: 700;
+      margin-top: 0.9rem;
+      margin-bottom: 0.55rem;
+      color: var(--heading-color);
+    }
+
+    /* Paragraphs and Spoken Lines */
+    p {
+      margin-bottom: 0.78rem;
+    }
+
+    .dialogue-turn {
+      margin-bottom: 0.62rem;
+    }
+
+    .leader-reply {
+      font-style: italic;
+      margin-bottom: 0.78rem;
+    }
+
+    .shout {
+      font-family: var(--sans-font);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0.85rem 0;
+      color: var(--heading-color);
+      line-height: 1.35;
+    }
+
+    .nebentext {
+      font-family: var(--sans-font);
+      font-style: normal;
+    }
+
+    .script-pause {
+      font-family: var(--sans-font);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0.85rem 0;
+      color: var(--heading-color);
+    }
+
+    .song-lyrics {
+      line-height: 1.55;
+      margin: 0.75rem 0;
+    }
+
+    .ritual-chant {
+      font-style: italic;
+      line-height: 1.55;
+      margin: 0.75rem 0;
+    }
+
+    /* Production Credits */
+    .prod-entry {
+      margin-bottom: 0.72rem;
+    }
+    .prod-role {
+      font-family: var(--sans-font);
+      font-weight: 700;
+      font-size: 8.5pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-color);
+      margin-bottom: 0.08rem;
+    }
+    .prod-details {
+      font-family: var(--serif-font);
+      color: var(--text-color);
+    }
+
+    .footnote-bottom {
+      font-family: var(--serif-font);
+      font-style: italic;
+      font-size: 8.5pt;
+      color: var(--text-muted);
+      margin-top: 0.9rem;
+      padding-top: 0.4rem;
+      border-top: 1px dotted var(--border-color);
+    }
+
+    /* Print-specific rules */
+    @media print {
+      html, body {
+        background: #ffffff;
+        padding: 0;
+        margin: 0;
+        width: 148mm;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .a5-page {
+        margin: 0;
+        box-shadow: none;
+        border: none;
+        width: 148mm;
+        height: 210mm;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .a5-page:last-of-type {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen-only Helper Bar (Hidden when printing) -->
+  <div class="print-toolbar no-print">
+    <div class="print-toolbar-info">
+      godeatgod — Print-Ready Edition <span>(A5 · Pages 179–205)</span>
+    </div>
+    <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+  </div>
+
+  <!-- ==================== PAGE 179 ==================== -->
+  <section class="a5-page" id="page-179" data-page="179">
+    <div class="page-content">
+      <h1 class="script-title calibri">godeatgod</h1>
+      <h2 class="script-author times">By Haresh Sharma</h2>
+
+      <h3 class="times" style="font-size: 13pt; font-style: italic; margin-bottom: 1.1rem;"><u>godeatgod</u></h3>
+
+      <p class="times">
+        A layered and moving exploration of power, sexuality, spirituality and survival in the post traumatic world, this multimedia, multiracial and multinational romp is interwoven with the stories and emotional landscape of its characters.
+      </p>
+
+      <p class="times">
+        <em>godeatgod</em> is an intimate, personal and at times funny exposition about trying to live a better life; a take on censorship in the context of art; and an examination of love and grief.
+      </p>
+    </div>
+    <footer class="page-footer">179</footer>
+  </section>
+
+  <!-- ==================== PAGE 180 ==================== -->
+  <section class="a5-page" id="page-180" data-page="180">
+    <div class="page-content">
+      <h3 class="section-header">PRODUCTION HISTORY</h3>
+
+      <div class="prod-entry">
+        <div class="prod-role">FIRST STAGING</div>
+        <div class="prod-details">The Necessary Stage Black Box.<br>August 2002</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">CAST</div>
+        <div class="prod-details">Patricia Mok, Norleena Salim, Natalie Hennedige, Ian Loy,<br>Matthew Lyon</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">DIRECTOR</div>
+        <div class="prod-details">Alvin Tan</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">STAGING</div>
+        <div class="prod-details">Alvin Tan &amp; Chong Tze Chien</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">PRODUCTION DESIGN</div>
+        <div class="prod-details">Jeff Chen</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">LIGHTING DESIGN</div>
+        <div class="prod-details">Yo Shao Ann</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">SET DESIGN</div>
+        <div class="prod-details">Vincent Lim</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">SONG COMPOSER</div>
+        <div class="prod-details">Babes Conde</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">MULTIMEDIA ARTISTS</div>
+        <div class="prod-details">Brian Gothong Tan &amp; Jeff Chen</div>
+      </div>
+    </div>
+    <footer class="page-footer">180</footer>
+  </section>
+
+  <!-- ==================== PAGE 181 ==================== -->
+  <section class="a5-page" id="page-181" data-page="181">
+    <div class="page-content">
+      <div class="prod-entry">
+        <div class="prod-role">COSTUME DESIGN</div>
+        <div class="prod-details">Angelynn Tan, Peter Hong &amp; Ha Sze Sze</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">TECHNICAL MANAGER</div>
+        <div class="prod-details">Patrick Wong</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">STAGE MANAGER</div>
+        <div class="prod-details">Isis Koh</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">SECOND STAGING</div>
+        <div class="prod-details">The Necessary Stage Black Box.<br>October–November 2004</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">CAST</div>
+        <div class="prod-details">Aidli ‘Alin’ Mosbit, Eriko Nemoto, Peter Sau, Rody Vera</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">THIRD STAGING</div>
+        <div class="prod-details">Sibiu International Theatre Festival, Cisnadiora Castle, Sibiu, Romania.<br>May 2005</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">FOURTH STAGING</div>
+        <div class="prod-details">City Festival–Hong Kong Fringe Club, Fringe Studio.<br>January 2006</div>
+      </div>
+
+      <div class="prod-entry">
+        <div class="prod-role">FIFTH STAGING</div>
+        <div class="prod-details">Sziget Festival, Hungary.<br>August 2006</div>
+      </div>
+    </div>
+    <footer class="page-footer">181</footer>
+  </section>
+
+  <!-- ==================== PAGE 182 ==================== -->
+  <section class="a5-page" id="page-182" data-page="182">
+    <div class="page-content">
+      <h3 class="section-header">PROLOGUE</h3>
+
+      <p class="times">
+        I think… we need to remind ourselves… how lucky we really are. We need to put our faith in God. I mean… we can’t be selfish anymore. I’d like to believe that we have it in us to be good. To do good. I’d like to believe that we are put on this earth for a purpose.
+      </p>
+
+      <p class="times">
+        Do you understand what I’m talking about? Because I can’t go on if you don’t understand, and agree. Agree and act… you have to promise that you will act on it. Because – and some people say what can I do? But I say you can do everything… and yes, some of you say, I have to work, I have family and kids. It’s not a difficult thing. Are you suffering now? Is there anyone here suffering? Is anyone here in pain? Can we therefore just take a moment to be grateful? Can we take a moment to sort out our priorities?
+      </p>
+
+      <p class="times">
+        And I just want to share that with you. Because I think… I think it’s really very simple. As part of the process of this play, we sent a letter to the IRO – Inter-Religious Organisation – in Singapore. We asked them a few questions with regards to spirituality, mortality, suffering, violence, pain…
+      </p>
+
+      <p class="times">
+        The following are some replies. Some have been slightly edited for length, some are translated and all names have been withheld.
+      </p>
+
+      <p class="times">The first is from a Muslim leader.</p>
+
+      <p class="leader-reply times">
+        Muslims in Singapore have become more uneasy of late. There seems to be a certain misunderstanding of what Islam constitutes, from Muslims
+      </p>
+    </div>
+    <footer class="page-footer">182</footer>
+  </section>
+
+  <!-- ==================== PAGE 183 ==================== -->
+  <section class="a5-page" id="page-183" data-page="183">
+    <div class="page-content">
+      <p class="leader-reply times">
+        and non-Muslims. Islam promotes peace, and the pairing of freedom with responsibility. Terrorists are people who interpret religion for their own ends. This world is a test, and we are only here part-time. If we do good and receive God’s blessings, the real living will be in heaven.
+      </p>
+
+      <p class="times">The next is from a Catholic leader.</p>
+
+      <p class="leader-reply times">
+        Life’s sufferings can be blessings in disguise, reminding us not to take things for granted. We may liken ourselves to the apostles who were once in a boat with Jesus Christ when it was caught in a storm at sea. They were battling against it by themselves, while Jesus slept unperturbed. Jesus then woke up and calmed the sea by himself. We need to focus on God. Work for things that money can’t buy and you will be happy no matter what happens.
+      </p>
+
+      <p class="times">The next is from a Hindu leader.</p>
+
+      <p class="leader-reply times">
+        According to Hindu beliefs, we are mid-way through a period called Kalyug, or Dark Era. This is a time when many bad things will happen and we must be ready for worse things to come. Hinduism teaches us that we should live a simple life, whether in our thinking or our food and drink. And we must always reach out to those in need.
+      </p>
+
+      <p class="times">The next is from a Buddhist leader.</p>
+
+      <p class="leader-reply times">
+        We cling to things that belong to us, but things are impermanent. We must not fear impermanence. Buddhists believe in karma. The seeds you sow are the fruit you reap. People may reap good or bad fruit at the end of the day, but they cannot just sit there and do nothing. Be content with what you have. Whatever your troubles may be, it’s not the end of the world.
+      </p>
+    </div>
+    <footer class="page-footer">183</footer>
+  </section>
+
+  <!-- ==================== PAGE 184 ==================== -->
+  <section class="a5-page" id="page-184" data-page="184">
+    <div class="page-content">
+      <p class="times">
+        I hope you understand the reason for this rather lengthy beginning. We just want to make this clear, to just speak to all of you. Because everything else after this is art.
+      </p>
+
+      <h4 class="sub-header calibri">&emsp;godeatgod</h4>
+
+      <div class="song-lyrics times">
+        What a wonderful world we live in<br>
+        What a wonderful wonderful world we live in<br>
+        <br>
+        Newspapers and magazines<br>
+        Politics and rhetorics<br>
+        Inaction and aggression<br>
+        <br>
+        TV screens and DVDs<br>
+        Compassion and castration<br>
+        Recession and obsession<br>
+        <br>
+        One night stands and reclaimed lands<br>
+        Jealousy and urgency<br>
+        Privacy and purity<br>
+        Dictator and spectator<br>
+        <p class="shout">&emsp;EXCUSE ME CAN YOU PLEASE LISTEN TO ME?</p>
+        god eat god<br>
+        god eat god<br>
+        god eat god<br>
+        god eat god<br>
+        <br>
+        PAP and Mercury<br>
+        Bloody lies and butterflies<br>
+        Family ties and cloudy skies
+      </div>
+
+      <p class="footnote-bottom">¹ PAP — People’s Action Party</p>
+    </div>
+    <footer class="page-footer">184</footer>
+  </section>
+
+  <!-- ==================== PAGE 185 ==================== -->
+  <section class="a5-page" id="page-185" data-page="185">
+    <div class="page-content">
+      <div class="song-lyrics times">
+        Uncut cock and lindy hop<br>
+        Righteousness and helplessness<br>
+        Permanence and decadence<br>
+        Paedophile and house of style<br>
+        Taliban and tau sa bun<br>
+        Crucify and apple pie<br>
+        Crazy glue and I love you<br>
+        <p class="shout">&emsp;EXCUSE ME CAN YOU PLEASE LISTEN TO ME?</p>
+        god eat god<br>
+        god eat god<br>
+        god eat god<br>
+        god eat god!
+      </div>
+
+      <p class="footnote-bottom">² Tau sa bun — Red bean bun</p>
+
+      <h3 class="section-header">&emsp;THE TRIAL</h3>
+
+      <p class="dialogue-turn times">How do you plead?</p>
+      <p class="dialogue-turn times">I have done nothing wrong.</p>
+      <p class="dialogue-turn times">You have killed hundreds and thousands of people.</p>
+      <p class="dialogue-turn times">I have not killed a single soul.</p>
+      <p class="dialogue-turn times">Those who kill, kill in your name, under your control.</p>
+      <p class="dialogue-turn times">I have never told anyone to kill. If they use my name, what can I do?</p>
+      <p class="dialogue-turn times">You could have prevented it. You can prevent it.</p>
+    </div>
+    <footer class="page-footer">185</footer>
+  </section>
+
+  <!-- ==================== PAGE 186 ==================== -->
+  <section class="a5-page" id="page-186" data-page="186">
+    <div class="page-content">
+      <p class="dialogue-turn times">How can I prevent it? They are not under my control. I repeat. I have never told anyone to kill.</p>
+      <p class="dialogue-turn times">Maybe you have not killed a single soul. But because of you, you, millions of lives have been destroyed.</p>
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop.</p>
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop.</p>
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop!</p>
+      <p class="dialogue-turn times">IT IS BEYOND MY CONTROL! DO YOU UNDERSTAND? EVERYTHING IS BEYOND MY CONTROL!</p>
+
+      <h3 class="section-header">&emsp;THE DISCOVERY</h3>
+
+      <p class="times">
+        I was cooking fish. The moment he walked in he started to sneeze. So he went back outside and stood at the corridor. Look, he said, they’re building a new playground. No, I laughed. They’re building a Chinese rock garden. With a pond. Which they’re going to fill with carp. He looked at the rubble. They’re using our maintenance money to buy expensive carp? I fingered his stubble and smiled. It’s supposed to bring this neighbourhood together. It’ll be ready by next year. He held my hand. And he told me.
+      </p>
+    </div>
+    <footer class="page-footer">186</footer>
+  </section>
+
+  <!-- ==================== PAGE 187 ==================== -->
+  <section class="a5-page" id="page-187" data-page="187">
+    <div class="page-content">
+      <h3 class="section-header">&emsp;ONCE I SAW A NAKED MAN</h3>
+
+      <p class="times">
+        Once I saw a naked man lying outside my front door. I touched him and realised he was dead. His body was hard and cold. I noticed a gold ring on his finger. I took it and put it on. I realised later that when I turned the ring inside, I became invisible. I visited world economic conferences and turned my ring inside. Then I screamed. DO SOMETHING. But nothing happened. Then I went to world religious conferences and turned my ring inside. Then I screamed. DO SOMETHING. But nothing happened. Then I went to world political conferences and turned my ring inside. Then I screamed. DO SOMETHING. But nothing happened. The following year, I went back to these conferences and turned my ring inside. Then I planted bombs and initiated riots and raped, and tortured and killed. I do not have a home. I do not have an address. I live wherever I want to. But always with my ring turned inside.
+      </p>
+
+      <h3 class="section-header" id="section-hospital">&emsp;THE HOSPITAL</h3>
+
+      <p class="times">
+        The doctor – The doctor had very little to say about his progress. Very little that was useful. If medicine is a science – If medicine is a science, and science is supposed to be factual and concrete, then why do doctors always say things like ‘the medication MAY work’, and ‘we DON’T KNOW how long it will take’, ‘I’m not sure’, ‘Maybe’, ‘Perhaps’, ‘Likely’… <span class="nebentext">[Pause]</span> Science is supposed to be factual and concrete. Science is supposed to be – Thank you Doctor. Thank you for looking after the sick. Doctor, my entire life, my existence, my depression, my joy, my breakdown… are all determined by your eyes as you take his pulse, your scribble on his chart, your voice, as you speak to the nurse, to me. ‘We are unsure of the cause’, ‘We can’t be certain of the effects’. ‘Perhaps’, ‘Maybe’, ‘Likely’. Tell me Doctor.
+      </p>
+    </div>
+    <footer class="page-footer">187</footer>
+  </section>
+
+  <!-- ==================== PAGE 188 ==================== -->
+  <section class="a5-page" id="page-188" data-page="188">
+    <div class="page-content">
+      <p class="times">
+        Tell me what you don’t know. Tell me yes and no. Will he die? Will he be around for Christmas? Will he be around in six months? <span class="nebentext">[Slight pause]</span> Thank you Doctor. Thank you.
+      </p>
+
+      <h3 class="section-header">&emsp;WIFE &amp; GOD I</h3>
+
+      <p class="dialogue-turn times">Do you think he can hear you?</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">Where do you think he is now?</p>
+      <p class="dialogue-turn times">I don’t know.</p>
+      <p class="dialogue-turn times">Do you blame yourself?</p>
+      <p class="dialogue-turn times">No.</p>
+      <p class="dialogue-turn times">Do you blame him?</p>
+      <p class="dialogue-turn times">No.</p>
+      <p class="dialogue-turn times">Don’t you think your suffering is inconsequential?</p>
+
+      <p class="script-pause">&emsp;PAUSE.</p>
+
+      <p class="dialogue-turn times">What did you expect? Immortality?</p>
+
+      <p class="script-pause">&emsp;PAUSE.</p>
+
+      <p class="dialogue-turn times">When was the last time you hungered for sex?</p>
+    </div>
+    <footer class="page-footer">188</footer>
+  </section>
+
+  <!-- ==================== PAGE 189 ==================== -->
+  <section class="a5-page" id="page-189" data-page="189">
+    <div class="page-content">
+      <p class="script-pause">&emsp;PAUSE.</p>
+
+      <p class="dialogue-turn times">
+        Do you regret not giving him oral sex all those times he wanted it? Do you regret thinking of someone else when you were in bed with him? Do you really think one person is enough in a lifetime? Don’t you think marriage is outdated? Don’t you think religion is outdated? Are there alternatives? Do you think I’m obsolete?
+      </p>
+
+      <p class="dialogue-turn times">Thank you.</p>
+
+      <h3 class="section-header">&emsp;I SHALL</h3>
+
+      <div class="song-lyrics times">
+        This is where it hurts<br>
+        Yes, this is where it hurts<br>
+        I cannot move, I cannot feel<br>
+        Something’s pushing, pulling me<br>
+        <br>
+        Thought I heard a sound<br>
+        But when I opened my eyes<br>
+        I saw your face... saw your eyes<br>
+        No goodbyes<br>
+        <br>
+        I shall paint it blue<br>
+        Shall put it in my room<br>
+        And I shall arrange it so<br>
+        I shall face... you<br>
+        <br>
+        Guess I could pretend<br>
+        Guess I could repair<br>
+        I cannot fight, I cannot go<br>
+        Someone’s calling, going home
+      </div>
+    </div>
+    <footer class="page-footer">189</footer>
+  </section>
+
+  <!-- ==================== PAGE 190 ==================== -->
+  <section class="a5-page" id="page-190" data-page="190">
+    <div class="page-content">
+      <div class="song-lyrics times">
+        I shall paint it blue<br>
+        Shall put it in my room<br>
+        And I shall arrange it so<br>
+        I shall face... you<br>
+        <br>
+        Thank you for making my life<br>
+        Thank you for leaving me now<br>
+        Stop flying, stop breathing<br>
+        I passed the test, passed the test<br>
+        <br>
+        I shall paint it blue<br>
+        Shall put it in my room<br>
+        And I shall arrange it so<br>
+        I shall always face... you
+      </div>
+
+      <h3 class="section-header">&emsp;POLITICAL THEATRE STRAND I</h3>
+
+      <p class="times">
+        I’m going to tell you the story of a hero that I have great admiration for. This man was imprisoned for about 10 years before going on exile because he was considered the foremost political opponent of the Marcoses. You all know who they are.
+      </p>
+
+      <p class="times">
+        Well, one day in August 1983 he said, ‘Enough is enough. I’m going home. I’m going to face the enemy.’ So he boarded a plane and sat in economy class under a disguised name. But everyone in the plane knew him. Passengers wanted their pictures taken with him. Some even got his autograph. It turned into a small party in the sky.
+      </p>
+
+      <p class="times">
+        Meanwhile, back home, people wearing yellow ribbons were waiting to give him a warm welcome.
+      </p>
+    </div>
+    <footer class="page-footer">190</footer>
+  </section>
+
+  <!-- ==================== PAGE 191 ==================== -->
+  <section class="a5-page" id="page-191" data-page="191">
+    <div class="page-content">
+      <p class="times">
+        Just before the plane landed, the man secretly took out his rosary and started saying a prayer. He knew that his life would be in danger once he arrives. The plane landed in Manila and was halted. Three uniformed men entered the plane and singled him out. There was sudden confusion. Those who knew him offered to accompany him along just to make sure he’d be safe. But the three men insisted that he was to be led off alone. So they brought him out and shut the plane door. And immediately after, shots were heard.
+      </p>
+
+      <p class="times">
+        Everyone knew he was dead. His body, drenched in blood, lay on the ground. He was wearing white. He died finally kissing the soil of his native land. The man had prepared a speech hoping to read it upon his arrival. But he never did. Part of it goes like this:
+      </p>
+
+      <p class="times">
+        ‘I return from exile to offer faith in our people and faith in God. I am prepared to die because the Filipino is worth dying for.’
+      </p>
+
+      <p class="times">
+        Three years after, the Marcoses were overthrown and the man’s wife eventually became President. But until today, the mastermind behind the assassination remains a secret. All that we ever got to do to remember him was put his face in our money bills and name the airport where he died after him. I will always remember him, his unrelenting faith in the Filipino. His name is Ninoy Aquino. Thank you.
+      </p>
+
+      <h3 class="section-header">&emsp;COMA</h3>
+
+      <p class="times">
+        I stood there and looked at him. His chest was moving slowly. Everything else was still. I sat and looked at him for a long time. Maybe there will be a miracle and he will suddenly wake up and smile at me and say hi.
+      </p>
+    </div>
+    <footer class="page-footer">191</footer>
+  </section>
+
+  <!-- ==================== PAGE 192 ==================== -->
+  <section class="a5-page" id="page-192" data-page="192">
+    <div class="page-content">
+      <p class="dialogue-turn times">Hi.</p>
+      <p class="dialogue-turn times">You have been sleeping for a long time.</p>
+      <p class="dialogue-turn times">I know. I was just testing you.</p>
+      <p class="dialogue-turn times">Testing me?</p>
+      <p class="dialogue-turn times">Whether you would stay. Whether you would leave.</p>
+      <p class="dialogue-turn times">Did I pass?</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">Can you go home now?</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">With me.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">And everything will be normal.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">It was a test.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">I was looking at you, wishing you will wake up. I was looking at your chest move. Wishing your heart will pump faster. Look!</p>
+    </div>
+    <footer class="page-footer">192</footer>
+  </section>
+
+  <!-- ==================== PAGE 193 ==================== -->
+  <section class="a5-page" id="page-193" data-page="193">
+    <div class="page-content">
+      <p class="dialogue-turn times">What’s that?</p>
+      <p class="dialogue-turn times">Your heart.</p>
+      <p class="dialogue-turn times">Why did you take my heart out?</p>
+      <p class="dialogue-turn times">I wanted to make it work. It wasn’t working. I wanted to make it work.</p>
+      <p class="dialogue-turn times">It’s my heart.</p>
+      <p class="dialogue-turn times">I have nothing else.</p>
+      <p class="dialogue-turn times">You have me. I’m back. You passed. You passed the test.</p>
+      <p class="dialogue-turn times">Yes. I passed the test. And now... now we can go home.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">And everything will be normal.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">It was a test.</p>
+      <p class="dialogue-turn times">Yes.</p>
+      <p class="dialogue-turn times">Just a test.</p>
+    </div>
+    <footer class="page-footer">193</footer>
+  </section>
+
+  <!-- ==================== PAGE 194 ==================== -->
+  <section class="a5-page" id="page-194" data-page="194">
+    <div class="page-content">
+      <h3 class="section-header">&emsp;ONCE THERE WAS A MAN WHO FELT PAIN</h3>
+
+      <p class="times">
+        Once there was a man who felt pain. He went to the doctor and was told he had three months to live. He spent the three months going to the beach. He swam in the sea and walked along the beach at sunset. He visited other people who were in pain and talked to them and helped them. He smiled all the time. And every night he slept with a peacefulness he never experienced before. Then three months came. And he continued to live. And he continued to live. And he continued to live. And he continued to live.
+      </p>
+
+      <h3 class="section-header" id="section-political-2">&emsp;POLITICAL THEATRE STRAND II</h3>
+
+      <p class="times">
+        I want to share with you a story. On one hand, it’s a story of courage and determination. And on the other, it represents the worst kind of tyranny and injustice.
+      </p>
+
+      <p class="times">
+        One day in June 1989, a young man stood in front of 17 moving tanks. When the tank moved left, he too moved left. When the tank moved right, he too moved right. It was a magnificent sight.
+      </p>
+
+      <p class="times">
+        The tank drivers shouted, ‘Hey, are you crazy!’ The young man replied, ‘Why are you here? My city is in chaos because of you! Go back! Go back!’ The tank drivers grew impatient and shouted, ‘Hey! You crazy! We would crush you!’ The young man replied, ‘Don’t stop me! They destroyed my country! My country, my home!’
+      </p>
+
+      <p class="times">
+        Meanwhile, around the gigantic parade square, the masses — students, workers, children, families — camped around for days and nights. They cooked their meals there, they sang songs, they made friends. They were fighting for democracy in China.
+      </p>
+    </div>
+    <footer class="page-footer">194</footer>
+  </section>
+
+  <!-- ==================== PAGE 195 ==================== -->
+  <section class="a5-page" id="page-195" data-page="195">
+    <div class="page-content">
+      <p class="times">
+        However, after many weeks of demonstration, the Chinese government lost their patience. They started shooting at the students, the workers, the families. They crushed human bones with their tanks. The army shot them down from behind. Many people fell. Like rabbits shot down by hunters, they dropped to the floor. The following was said by a mother of one of the young men killed. I don’t know if there is a word in English to convey the meaning of the Chinese word “nao” <span class="nebentext">[To constantly suffer]</span>. But I think for myself, and for the other mothers, this word is the most accurate. The tears I shed for my dead son — there is a phrase in Chinese, “using one’s tears to wash one’s face”. In those two years, that was how I lived my life. Those who were killed were all young citizens of Beijing. They were up against an armed military enforcing martial law. They simply wanted to persuade the military not to enter the city, and not to use force against the people. When he was shot he thought that he had been hit by a rubber bullet. Right up to his death, he thought that it was a rubber bullet that pierced his heart, and ended his 17-year-old life. He didn’t think it could have been a real bullet.’ 1989. Whenever I think of the Tiananmen Square massacre, I get angry. I get very, very angry. Thank you.
+      </p>
+
+      <h3 class="section-header">&emsp;WIFE &amp; GOD II</h3>
+
+      <p class="dialogue-turn times">Why?</p>
+      <p class="dialogue-turn times">He’s sick.</p>
+      <p class="dialogue-turn times">You kill.</p>
+      <p class="dialogue-turn times">People die.</p>
+    </div>
+    <footer class="page-footer">195</footer>
+  </section>
+
+  <!-- ==================== PAGE 196 ==================== -->
+  <section class="a5-page" id="page-196" data-page="196">
+    <div class="page-content">
+      <p class="dialogue-turn times">Help him.</p>
+      <p class="dialogue-turn times">There’s nothing I can do. I’m not a doctor.</p>
+      <p class="dialogue-turn times">You kill.</p>
+      <p class="dialogue-turn times">I don’t kill. People kill. Earthquakes kill. Bombs kill. Illness kills.</p>
+      <p class="dialogue-turn times">Why don’t you stop?</p>
+      <p class="dialogue-turn times">Why can’t you be content with what you have? Why can’t you have patience in your suffering? Everyone suffers. Can you trust that you can handle the pain? You can handle the pain.</p>
+      <p class="dialogue-turn times">Give me something. Make me feel better. Make me feel happy.</p>
+      <p class="dialogue-turn times">I’m not medication. I’m not an investment. I’m not charity. I’m not a supermarket. I’m not the lottery.</p>
+      <p class="dialogue-turn times">Kill me.</p>
+      <p class="dialogue-turn times">Why does everyone get so emotional about death? Why does everyone scream murder every time they go through some pain or suffering?</p>
+      <p class="dialogue-turn times">I want to die.</p>
+      <p class="dialogue-turn times">Do whatever you want. It’s your life.</p>
+
+      <p class="script-pause">&emsp;PAUSE.</p>
+
+      <p class="dialogue-turn times">Why are more people asking the same questions?</p>
+    </div>
+    <footer class="page-footer">196</footer>
+  </section>
+
+  <!-- ==================== PAGE 197 ==================== -->
+  <section class="a5-page" id="page-197" data-page="197">
+    <div class="page-content">
+      <p class="dialogue-turn times">Because we have started to believe the answers less.</p>
+      <p class="dialogue-turn times">Forgive me then. Can you forgive me?</p>
+      <p class="dialogue-turn times">The opposite of forgiveness is accountability.</p>
+
+      <h3 class="section-header">&emsp;TO BE</h3>
+
+      <div class="song-lyrics times">
+        To be, or not to be: that is the question:<br>
+        Whether ’tis nobler in the mind to suffer<br>
+        The slings and arrows of outrageous fortune,<br>
+        Or to take arms against a sea of troubles,<br>
+        And by opposing end them? To die: to sleep;<br>
+        No more; and by a sleep to say we end<br>
+        The heart-ache and the thousand natural shocks<br>
+        That flesh is heir to, ’tis a consummation<br>
+        Devoutly to be wish’d. To die, to sleep;<br>
+        To sleep: perchance to dream: ay, there’s the rub;<br>
+        For in that sleep of death what dreams may come<br>
+        <br>
+        What dreams may come...
+      </div>
+
+      <h3 class="section-header" id="section-political-3">&emsp;POLITICAL THEATRE STRAND III</h3>
+
+      <p class="times">
+        Once there was a simple man. His name was Amrozi. He lived on the beautiful island of Bali. He wore his white skull cap everywhere he went. And he smiled a lot.
+      </p>
+
+      <p class="times">
+        <em>Hello! Hello! G’day mate! Heh heh!</em>
+      </p>
+    </div>
+    <footer class="page-footer">197</footer>
+  </section>
+
+  <!-- ==================== PAGE 198 ==================== -->
+  <section class="a5-page" id="page-198" data-page="198">
+    <div class="page-content">
+      <p class="times">
+        One day, two bombs killed about 200 people and injured many others in Kuta. Amrozi smiled and boasted that he had planted the bombs and killed the people. He was arrested and put on trial.
+      </p>
+
+      <p class="times">
+        Are you guilty? <em>Ya, Pak.</em><br>
+        Why did you do it? <em>Waduh, kok perlu tanya saya!</em><br>
+        Who is your leader? <em>Heh heh!</em>
+      </p>
+
+      <p class="times">
+        The smiling terrorist was found guilty and sentenced to be executed in front of a firing squad. After his sentence was read, he shouted GOD IS GREAT six times.
+      </p>
+
+      <p class="times">
+        I am not the terrorist. The terrorist is America.
+      </p>
+
+      <p class="times">
+        Relatives of the dead did not want him killed.
+      </p>
+
+      <p class="times">
+        Kematian-nya nggak bisa bawa pulang suami saya!<br>
+        His death will not bring back my husband!
+      </p>
+
+      <p class="times">
+        Kematian-nya akan membiak keganasan dan kegiatan terroris!<br>
+        His death will provoke more violence and terror!
+      </p>
+
+      <p class="times">
+        We won’t win war on terror this way!
+      </p>
+
+      <div class="song-lyrics times">
+        1. GOD IS GREAT!<br>
+        2. GOD IS GREAT!<br>
+        3. GOD IS GREAT!<br>
+        4. GOD IS GREAT!<br>
+        5. GOD IS GREAT!<br>
+        6. 6 times he shouted.
+      </div>
+    </div>
+    <footer class="page-footer">198</footer>
+  </section>
+
+  <!-- ==================== PAGE 199 ==================== -->
+  <section class="a5-page" id="page-199" data-page="199">
+    <div class="page-content">
+      <p class="times">
+        His smile was never forgotten. But, beautiful Bali will never be the same again. Thank you.
+      </p>
+
+      <h3 class="section-header">&emsp;THE OPPOSITE OF LIFE</h3>
+
+      <div class="song-lyrics times">
+        I woke up this morning, with a thought in my head.<br>
+        If I were to die, would I celebrate?<br>
+        Who would I meet, what would I say?<br>
+        Where would I be, what’s it like to be dead?<br>
+        <br>
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        Is hate the opposite of love?<br>
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        The opposite, the opposite of life.<br>
+        <br>
+        I woke up this morning, with a thought in my head.<br>
+        If I were to die, would I celebrate?<br>
+        Where would I go, and what would I face?<br>
+        Who would I know, what’s it like to be dead?<br>
+        <br>
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        Is hate the opposite of love?<br>
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        The opposite, the opposite of life.<br>
+        <br>
+        These questions you see, are meaningful to me.<br>
+        These questions I ask, I ask because.
+      </div>
+    </div>
+    <footer class="page-footer">199</footer>
+  </section>
+
+  <!-- ==================== PAGE 200 ==================== -->
+  <section class="a5-page" id="page-200" data-page="200">
+    <div class="page-content">
+      <div class="song-lyrics times">
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        Is hate the opposite of love?<br>
+        Is death the opposite of life?<br>
+        Is sadness the opposite of joy?<br>
+        The opposite, the opposite of life.
+      </div>
+
+      <h3 class="section-header">&emsp;DISCUSSION</h3>
+
+      <p class="times">
+        THERE IS A DISCUSSION ON CENSORSHIP, WAR AND THE PURPOSE OF ART.
+      </p>
+
+      <h3 class="section-header" id="section-shower">&emsp;THE SHOWER</h3>
+
+      <div class="ritual-chant times">
+        Go away<br>
+        Withdraw and depart from here<br>
+        Do you recognise me?<br>
+        Are you there?<br>
+        Do you recognise me?<br>
+        Can you speak?<br>
+        Your last thought will determine your next birth<br>
+        You’re with me<br>
+        Are you with me?<br>
+        Yes, I am<br>
+        I’m always with you
+      </div>
+
+      <p class="times">
+        Last night I used my lavender shower gel. I had bought it some time ago, but… <span class="nebentext">[Slight pause]</span> Actually it was purple, not lavender. Purple in the most magical way. As if… as if they looked at it and said, ‘Let’s make it a happy purple, the happiest purple in the world. Let’s put in
+      </p>
+    </div>
+    <footer class="page-footer">200</footer>
+  </section>
+
+  <!-- ==================== PAGE 201 ==================== -->
+  <section class="a5-page" id="page-201" data-page="201">
+    <div class="page-content">
+      <p class="times">
+        lots and lots of lavender and jasmines and primrose, so that everyone smells happy and feels happy. In fact, let’s put in tiny granules so that everyone can wash their bodies and feel their grime and their dirt and their filth and their – ’ <span class="nebentext">[Long pause]</span> I walked out of the shower and I felt… yes… it’s OK… I’m ready. I’m fine. <span class="nebentext">[Slight laugh]</span> I’ll get a lot of money from this. I can call my girlfriends. Go out. Have a drink. Buy shoes. Or a new car. Shower gel. All the shower gels with the happiest colours and the happiest smells. Clean. Start clean.
+      </p>
+
+      <h3 class="section-header">&emsp;THE TRIAL</h3>
+
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop.</p>
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop.</p>
+      <p class="dialogue-turn times">I am not guilty.</p>
+      <p class="dialogue-turn times">Tell them to stop!</p>
+      <p class="dialogue-turn times">IT IS BEYOND MY CONTROL! DO YOU UNDERSTAND? EVERYTHING IS BEYOND MY CONTROL.</p>
+      <p class="dialogue-turn times">PEOPLE LOOK UP TO YOU. THEY WORSHIP YOU. THEY WILL DO ANYTHING FOR YOU. AND YOU SAY YOU HAVE NO CONTROL.</p>
+      <p class="dialogue-turn times">Kill me. Crucify me. Set me on fire. Throw stones at me.</p>
+    </div>
+    <footer class="page-footer">201</footer>
+  </section>
+
+  <!-- ==================== PAGE 202 ==================== -->
+  <section class="a5-page" id="page-202" data-page="202">
+    <div class="page-content">
+      <p class="dialogue-turn times">
+        Yes, I will. I charge you guilty and sentence you to death. I hope that you will yourself experience the seconds, the hours, the days and nights before death, which you have brought to millions of people. Your murder will prevent the murder of others. Your death will lead to life.
+      </p>
+
+      <p class="dialogue-turn times">I can’t die.</p>
+
+      <p class="dialogue-turn times">You will. This time you will.</p>
+
+      <p class="dialogue-turn times">
+        They say that God is within me. That God is within us all. Does it mean that if you die, God dies? Does it mean that if you kill someone, you kill God? Does it mean that if you’re sick, God is sick? I believe that God IS inside me. When my mother consumed my father’s semen, I was conceived. After I was conceived, I consumed God. After I consumed God, I kept him. Within me. And that’s all. That’s all I know.
+      </p>
+
+      <h3 class="section-header">&emsp;CLEANSING RITUAL</h3>
+
+      <div class="ritual-chant times">
+        I found you<br>
+        I loved you<br>
+        I worshipped you<br>
+        I was cared for by you<br>
+        I was provided for by you<br>
+        I was dependent on you<br>
+        I was suffocated by you<br>
+        I was paralysed by you<br>
+        I was killed by you
+      </div>
+    </div>
+    <footer class="page-footer">202</footer>
+  </section>
+
+  <!-- ==================== PAGE 203 ==================== -->
+  <section class="a5-page" id="page-203" data-page="203">
+    <div class="page-content">
+      <div class="ritual-chant times" style="margin-top: 0;">
+        Now I am nothing<br>
+        I have nothing<br>
+        He was my joy<br>
+        my love<br>
+        my sacrifice<br>
+        my truth<br>
+        my peace<br>
+        my sick<br>
+        He was my spouse<br>
+        my life<br>
+        my only<br>
+        my all<br>
+        He was my god<br>
+        my god
+      </div>
+
+      <h3 class="section-header">&emsp;THE END</h3>
+
+      <p class="times">
+        He left on a Sunday evening… it was cold because it had been raining. I sat by his side for an hour and watched him. I could only look at the numbers on the machines… going lower and lower…
+      </p>
+
+      <p class="times">
+        Maybe I should have prayed. Maybe I should have whispered to him that I loved him. <span class="nebentext">[Whispers]</span> I love you. It’s OK. I love you. Just go. I’ll be fine. I’ve learnt to sleep on one side of the bed. I’ve learnt to put one cup on the table. I’ve learnt to switch off your alarm clock. You stupid man. Stupid man. After everything. Everything I’ve done, everything we’ve done. And now… Finish. Sign your death cert. And I go home alone. Alone. Hear that? Alone. Finish. It’s over. The end.
+      </p>
+
+      <p class="times">
+        The nurses came in and drew the curtains. They started switching off all the machines. With their gloves on, they removed the tubes from
+      </p>
+    </div>
+    <footer class="page-footer">203</footer>
+  </section>
+
+  <!-- ==================== PAGE 204 ==================== -->
+  <section class="a5-page" id="page-204" data-page="204">
+    <div class="page-content">
+      <p class="times">
+        his nose. They pulled out the needles from his arm, his wrist and his throat. I packed his bags as they changed him. They asked if I wanted to bring the flowers and gifts home. I said no. They started pushing the machines away, then a trolley with the tubes and the needles, then another trolley with the flowers and the gifts.
+      </p>
+
+      <p class="times">
+        I took his bags and went outside. I signed the death certificate, collected his IC and Medisave forms. I went back in. The curtains were open. And he was no longer there. He was no longer there.
+      </p>
+
+      <h3 class="section-header">&emsp;EPILOGUE</h3>
+
+      <p class="times">
+        We have to live our life with compassion. We have to see things in the bigger perspective. Art is important. But sometimes we just have to say what we have to say. No subtext. No metaphors, no symbols… We should say and discuss what we feel, especially about matters close to our hearts… matters that are important to all of us. Even if you leave with no answers, no messages, maybe even a little confused… I hope you will leave with some personal reflection. Thank you.
+      </p>
+      <br>
+      <p class="shout">END.</p>
+    </div>
+    <footer class="page-footer">204</footer>
+  </section>
+
+  <!-- ==================== PAGE 205 ==================== -->
+  <section class="a5-page" id="page-205" data-page="205">
+    <div class="page-content">
+      <h3 class="section-header">POSTSCRIPT</h3>
+
+      <p class="calibri" style="font-weight: 700; margin-bottom: 0.2rem;">Excerpts from</p>
+      <p class="calibri" style="font-weight: 700; font-style: italic; margin-bottom: 1.1rem;">Interlogue—Studies in Singapore Literature Volume 6: Haresh Sharma</p>
+
+      <p class="times">
+        <em>godeatgod</em> is a reflection by Sharma, in many ways, on the politics and personal tragedies of a post-9/11 world — a world which, for him, is not a dog-eat-dog world but a <em>godeatgod</em> world. Powerful people, the secular gods, if you like, of the 21st century, are at war over ideologies...
+      </p>
+
+      <p class="times">
+        Clarissa Oon recognised in a review, when it was restaged in November 2004, that ‘one of the most important things art can do in the embattled post-9/11 world is not to give the right answers, but to ask the right questions — and to do so with heart’. She went on to say that, ‘Showing how social theatre can have a distinctly Asian voice, <em>godeatgod</em> is also the perfect antidote to rambling or too-glib experimental theatre pieces disconnected from the flesh and blood of human suffering’. (<em>The Straits Times</em>, November 2, 2004)
+      </p>
+
+      <p class="times">
+        While the 2004 production moved far away from the localised Singapore references of the 2002 play, Sharma retained the central questions he was posing in the play in 2002: ‘What good is there in the world? What can people do? What is the role of art? Why and how do we grieve over the death of loved ones?’ and so on. Alfian Sa’at described it online by saying that it was ‘no exaggeration to say that recent Singapore theatre has not witnessed a performance that is so aesthetically dense, semiotically luxuriant, and intellectually iridescent’. With God on trial for the murder of millions, a mourning wife dealing with her husband’s terminal illness and death, artists questioning the Tiananmen Square incident, the Bali bombing and others, Sharma seeks to engage with these big universal questions.
+      </p>
+
+      <p class="times">
+        &emsp;David Birch
+      </p>
+    </div>
+    <footer class="page-footer">205</footer>
+  </section>
+
+</body>
+</html>
+
